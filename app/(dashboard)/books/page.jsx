@@ -1,13 +1,19 @@
+import { toggleBookmarkAction } from "@/actions/bookmarkAction";
 import BookCard from "@/components/BookCard";
 import { connectDB } from "@/lib/db";
+import getAuthenticatedUser from "@/lib/getCurrentUser";
+import Bookmark from "@/models/Bookmark";
 import Book from "@/models/Books";
-import { Search, Compass, BookX } from "lucide-react";
+import { Search, Compass, BookX, AlertTriangle, RefreshCw } from "lucide-react";
 
 export default async function Books({ searchParams }) {
   const params = await searchParams;
   const searchQuery = params.search || "";
 
+  const user = await getAuthenticatedUser();
+
   let books = [];
+  let bookmarkedIdSet = new Set();
   let databaseError = false;
   let errorMessage = "";
 
@@ -24,15 +30,15 @@ export default async function Books({ searchParams }) {
     } else {
       books = await Book.find({}).sort({ createdAt: -1 }).lean();
     }
+
+    if(user?.id){
+      const userBookmarks = await Bookmark.find({userId: user.id}).lean();
+      bookmarkedIdSet = new Set(userBookmarks.map(b => b.bookId.toString()))
+    }
   } catch (error) {
     console.error("CRASH: Books page DB failed : ", error);
     databaseError = true;
     errorMessage = error.message || "Unable to connect with Database";
-  }
-
-  async function toggleBookmarkAction(bookId) {
-    "use server";
-    console.log("Saving bookmark link for item token: ", bookId);
   }
 
   return (
@@ -44,13 +50,14 @@ export default async function Books({ searchParams }) {
             Explore Library
           </h1>
           <p className="text-sm text-zinc-400 mt-1">
-            Browse across our catalog volumnes or search for selective text
-            titles.
+            Browse across our collection of books or search for selective text titles.
           </p>
         </div>
-        <div className="text-xs px-3 py-1.5 bg-zinc-950/80 border border-zinc-800 rounded-xl text-zinc-400 font-mono self-start md:self-auto">
-          Total Items: {books.length}
-        </div>
+        {!databaseError && (
+          <div className="text-xs px-3 py-1.5 bg-zinc-950/80 border border-zinc-800 rounded-xl text-zinc-400 font-mono self-start md:self-auto">
+            Total Items: {books.length}
+          </div>
+        )}
       </div>
 
       <form method="GET" action="/books" className="relative max-w-2xl group">
@@ -101,22 +108,18 @@ export default async function Books({ searchParams }) {
           </a>
         </div>
       ) : books.length > 0 ? (
-        /* STATE B: DATA FOUND OK LAYER */
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pt-2">
           {books.map((book) => (
             <BookCard
               key={book._id.toString()}
               book={JSON.parse(JSON.stringify(book))}
-              isBookmarked={false}
-              onBookmarkToggle={async (id) => {
-                "use server";
-                console.log("Tracking bookmark event ID:", id);
-              }}
+              isBookmarked={bookmarkedIdSet.has(book._id.toString())}
+              onBookmarkToggle={toggleBookmarkAction}
+              currentUser={user}
             />
           ))}
         </div>
       ) : (
-        /* STATE C: DATABASE IS ALIVE, BUT QUERY IS JUST EMPTY */
         <div className="flex flex-col items-center justify-center text-center p-12 bg-zinc-950/20 rounded-3xl border border-zinc-800/40 border-dashed max-w-md mx-auto mt-8">
           <div className="w-12 h-12 rounded-2xl bg-zinc-950 flex items-center justify-center text-zinc-600 border border-zinc-800 mb-4">
             <BookX size={20} className="stroke-[1.5]" />

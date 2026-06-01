@@ -1,17 +1,42 @@
 "use client";
 
-import { Bookmark, BookOpen, User } from "lucide-react";
+import React, { useTransition } from "react"; 
+import { Trash2, Loader2, Bookmark, BookOpen, User } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { deleteBookAction } from "@/actions/deleteAction";
 
 export default function BookCard({
   book,
-  isBookmarked = true,
+  isBookmarked,
   onBookmarkToggle,
+  currentUser
 }) {
+  const [isDeleting, startDeleteTransition] = useTransition();
+  const router = useRouter();
+
+  const isAdmin = currentUser?.role === "admin";
   const { _id, title, author, description } = book;
 
+  function handleDeleteClick(e) {
+    e.preventDefault(); 
+    e.stopPropagation();
+
+    if (confirm(`Are you absolutely sure you want to permanently delete "${title}"?`)) {
+      startDeleteTransition(async () => {
+        const result = await deleteBookAction(_id.toString());
+        if (!result.success) {
+          alert(result.message);
+        }
+      });
+    }
+  }
+
   return (
-    <div className="group relative flex flex-col w-full bg-zinc-950/40 backdrop-blur-md border border-zinc-800/80 overflow-hidden hover:border-violet-500/50 hover:bg-zinc-950/80 transition-all duration-300 shadow-xl hover:shadow-violet-500/5">
+    <div className={`group relative flex flex-col w-full bg-zinc-950/40 backdrop-blur-md border border-zinc-800/80 overflow-hidden hover:border-violet-500/50 hover:bg-zinc-950/80 transition-all duration-300 shadow-xl hover:shadow-violet-500/5 ${
+      isDeleting ? "opacity-20 scale-95 pointer-events-none" : ""
+    }`}>
+      
       <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-zinc-900 to-zinc-800 flex items-center justify-center overflow-hidden border-b border-zinc-800/60 group-hover:from-zinc-900 group-hover:to-zinc-800/40 transition-colors duration-300">
         {book.thumbnailUrl ? (
           <img
@@ -30,25 +55,41 @@ export default function BookCard({
           </div>
         )}
 
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            onBookmarkToggle(_id);
-          }}
-          className={`absolute top-4 right-4 p-2.5 rounded-xl border transition-all duration-200 active:scale-95 ${
-            isBookmarked
-              ? "bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-500/30"
-              : "bg-zinc-900/80 backdrop-blur-md border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
-          }`}
-          title={isBookmarked ? "Remove Bookmark" : "Bookmark Book"}
-        >
-          <Bookmark
-            size={16}
-            className={
-              isBookmarked ? "fill-current stroke-[2.5]" : "stroke-[2]"
-            }
-          />
-        </button>
+        <div className="absolute top-4 right-4 flex items-center gap-2 z-20">
+          
+          {isAdmin ? (
+            <button
+              onClick={handleDeleteClick}
+              disabled={isDeleting}
+              className="p-2.5 rounded-xl border border-zinc-800 text-zinc-400 bg-zinc-900/80 backdrop-blur-md hover:text-red-400 hover:border-red-500/40 transition-all duration-200 active:scale-95 cursor-pointer "
+              title="Permanently Delete Book"
+            >
+              {isDeleting ? (
+                <Loader2 size={16} className="animate-spin text-red-400" />
+              ) : (
+                <Trash2 size={16} />
+              )}
+            </button>
+          ):  null}
+
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              onBookmarkToggle(_id);
+            }}
+            className={`p-2.5 rounded-xl border transition-all duration-200 active:scale-95 ${
+              isBookmarked
+                ? "bg-violet-600 border-violet-500 text-white shadow-lg shadow-violet-500/30"
+                : "bg-zinc-900/80 backdrop-blur-md border-zinc-800 text-zinc-400 hover:text-zinc-200 hover:border-zinc-700"
+            }`}
+            title={isBookmarked ? "Remove Bookmark" : "Bookmark Book"}
+          >
+            <Bookmark
+              size={16}
+              className={isBookmarked ? "fill-current stroke-[2.5]" : "stroke-[2]"}
+            />
+          </button>
+        </div>
       </div>
 
       <div className="flex-1 p-5 flex flex-col">
@@ -75,6 +116,7 @@ export default function BookCard({
           </Link>
         </div>
       </div>
+
     </div>
   );
 }

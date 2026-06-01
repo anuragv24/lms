@@ -1,28 +1,27 @@
-"use client"
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { jwtVerify } from 'jose';
 
-import BookCard from "@/components/BookCard";
-import UploadComp from "@/components/uploadComp";
+export default async function RootPage() {
+  let isTokenValid = false;
 
-export default function Home() {
-  const book ={
-    _id: 12345,
-    title: "Random",
-    author: "xyz",
-    description: "abc",
-    
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('next-auth.session-token')?.value;
+
+    if (token) {
+      const secretKey = new TextEncoder().encode(process.env.JWT_SECRET);
+      await jwtVerify(token, secretKey);
+      isTokenValid = true;
+    }
+  } catch (error) {
+    isTokenValid = false;
   }
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        
-        {/* <UploadComp/> */}
 
-        <BookCard 
-          book={book}
-          onBookmarkToggle={(id) => console.log("Toggled ID:", id)}
-        />
-        
-      </main>
-    </div>
-  );
+  if (isTokenValid) {
+    redirect('/books');
+  } else {
+    redirect('/login');
+  }
+  return null;
 }

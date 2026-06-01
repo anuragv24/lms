@@ -13,17 +13,13 @@ const BookSchema = new Schema({
     },
     description: {
         type: String,
-        required: true,
+
     },
     pdfUrl: {
         type: String,
         required: true,
     },
-    uploadedBy: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-    }
+    
 }, {timestamps: true});
 
 BookSchema.index({ title: 'text', author: 'text' });

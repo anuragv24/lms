@@ -52,7 +52,7 @@ export default function Register() {
             Create Your Account
           </h2>
           <p className="text-xs text-zinc-400 mt-1.5">
-            Join to explore and bookmark library catalog books
+            Join to explore the large collections of books
           </p>
         </div>
 
@@ -64,7 +64,6 @@ export default function Register() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Full Name Input Field */}
           <div className="space-y-2">
             <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
               Full Name
@@ -77,13 +76,13 @@ export default function Register() {
                 type="text"
                 name="name"
                 required
-                placeholder="John Doe"
+                placeholder="Enter your full name..."
                 className="w-full pl-11 pr-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-violet-500/60 focus:bg-zinc-950 focus:ring-4 focus:ring-violet-500/5 transition-all duration-200"
               />
             </div>
           </div>
 
-          {/* Email Address Input Field */}
+          
           <div className="space-y-2">
             <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
               Email Address
@@ -96,13 +95,12 @@ export default function Register() {
                 type="email"
                 name="email"
                 required
-                placeholder="you@example.com"
+                placeholder="Enter your email..."
                 className="w-full pl-11 pr-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-violet-500/60 focus:bg-zinc-950 focus:ring-4 focus:ring-violet-500/5 transition-all duration-200"
               />
             </div>
           </div>
 
-          {/* Password Input Field with Visibility Switch Icon */}
           <div className="space-y-2">
             <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
               Secure Password
@@ -115,7 +113,7 @@ export default function Register() {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 required
-                placeholder="••••••••"
+                placeholder="Enter your password..."
                 className="w-full pl-11 pr-12 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-violet-500/60 focus:bg-zinc-950 focus:ring-4 focus:ring-violet-500/5 transition-all duration-200"
               />
               <button
@@ -129,7 +127,6 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Registration Submit Action Trigger Button */}
           <button
             type="submit"
             disabled={loading}
@@ -138,7 +135,7 @@ export default function Register() {
             {loading ? (
               <>
                 <Loader2 size={16} className="animate-spin" />
-                Creating Vault Identity...
+                Creating Account...
               </>
             ) : (
               "Sign Up"

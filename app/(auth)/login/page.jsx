@@ -2,7 +2,7 @@
 
 import { loginUserAction } from "@/actions/authAction";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import {
   Lock,
   Mail,
@@ -16,7 +16,7 @@ import Link from "next/link";
 
 import { useSearchParams } from "next/navigation";
 
-export default function Login() {
+ function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -57,7 +57,7 @@ export default function Login() {
             Welcome Back
           </h2>
           <p className="text-xs text-zinc-400 mt-1.5">
-            Sign in to unlock your dynamic reading vault
+            Sign in to read books
           </p>
         </div>
 
@@ -89,7 +89,7 @@ export default function Login() {
                 type="email"
                 name="email"
                 required
-                placeholder="you@example.com"
+                placeholder="Enter your email..."
                 className="w-full pl-11 pr-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-violet-500/60 focus:bg-zinc-950 focus:ring-4 focus:ring-violet-500/5 transition-all duration-200"
               />
             </div>
@@ -108,7 +108,7 @@ export default function Login() {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 required
-                placeholder="••••••••"
+                placeholder="Enter your password..."
                 className="w-full pl-11 pr-4 py-3 bg-zinc-950/50 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-violet-500/60 focus:bg-zinc-950 focus:ring-4 focus:ring-violet-500/5 transition-all duration-200"
               />
               <button
@@ -153,4 +153,18 @@ export default function Login() {
       </div>
     </div>
   );
+}
+
+export default function Login(){
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen w-screen flex items-center justify-center bg-zinc-950 text-zinc-400">
+          <Loader2 size={24} className="animate-spin text-violet-500" />
+        </div>
+      }
+    >
+      <LoginPage />
+    </Suspense>
+  )
 }

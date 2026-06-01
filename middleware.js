@@ -29,7 +29,7 @@ export async function middleware(request) {
     pathname.startsWith("/reader");
     
   const isAdminRoute =
-    pathname.startsWith("/admin") || pathname.startsWith("/admin/upload");
+    pathname.startsWith("/admin") || pathname.startsWith("/admin-upload");
   const isAuthRoute =
     pathname.startsWith("/login") || pathname.startsWith("/register");
 
@@ -57,7 +57,7 @@ export const config = {
     "/books/:path*",
     "/bookmarks/:path*",
     "/admin/:path*",
-    "/admin/upload/:path*",
+    "/admin-upload/:path*",
     "/reader/:path*",
     "/login",
     "/register",

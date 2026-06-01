@@ -1,90 +1,196 @@
-"use client"
+"use client";
 
 import { uploadBookAction } from "@/actions/uploadAction";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PlusCircle, FileText, User, Type, FileUp, Loader2, CheckCircle2, AlertCircle,} from "lucide-react";
 
+export default function UploadComp() {
+  const [loading, setLoadin] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState(null);
+  const [error, setError] = useState(null);
+  const router = useRouter();
 
-export default function UploadComp(){
-    const [loading, setLoadin] = useState(false);
-    const [uploadedUrl, setUploadedUrl] = useState(null)
-    const [error, setError] = useState(null);
-    const router = useRouter();
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    setLoadin(true);
+    setError(null);
+    setUploadedUrl(null);
 
-    async function handleFormSubmit(e){
-        e.preventDefault();
-        setLoadin(true);
-        setError(null);
-        setUploadedUrl(null);
-        
-        const formData = new FormData(e.target);
-        const result = await uploadBookAction(formData);
+    const formData = new FormData(e.target);
+    const result = await uploadBookAction(formData);
 
-        setLoadin(false);
-        if(result.success && result.data && result.data.url){
-            console.log("Upload successful, file URL:", result.data.url);
-            setUploadedUrl(result.data.url);
-        } else {
-            setError(result.message || "Upload failed");
-        }
+    setLoadin(false);
+    if (result.success && result.data && result.data.id) {
+      setUploadedUrl(result.data.id);
+      e.target.reset();
+    } else {
+      setError(result.message || "Upload failed");
     }
+  }
 
-    return (
-    <div className="min-h-screen bg-zinc-900 text-zinc-100 flex flex-col items-center justify-center p-6">
-      <div className="w-full max-w-md bg-zinc-950 p-8 rounded-xl border border-zinc-800 shadow-2xl">
-        <h2 className="text-xl font-bold mb-2">Upload Test Sandbox</h2>
-        <p className="text-sm text-zinc-400 mb-6">Verify binary PDF uploads directly to Cloudinary storage.</p>
+  return (
+    <div className="space-y-8 max-w-3xl mx-auto">
+      <div className="border-b border-zinc-800/60 pb-6">
+        <h1 className="text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2.5">
+          <PlusCircle className="text-fuchsia-500 stroke-[2]" size={24} />
+          Add new book
+        </h1>
+      </div>
 
-        <form onSubmit={handleFormSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-zinc-400 mb-2">
-              Select Book PDF
+      {uploadedUrl && (
+        <div className="p-4 bg-emerald-950/20 border border-emerald-900/40 rounded-xl flex items-center justify-between gap-3 text-xs text-emerald-200 animate-in fade-in duration-300">
+          <div className="flex items-center gap-3">
+            <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+            <span>
+              Book successfully uploaded !!!
+            </span>
+          </div>
+          <button
+            onClick={() =>
+              router.push(
+                `/reader/${uploadedUrl}`,
+              )
+            }
+            className="px-3 py-1 bg-emerald-900/60 hover:bg-emerald-800 border border-emerald-700/50 rounded-lg text-emerald-300 font-medium transition-colors"
+          >
+            Click here to view
+          </button>
+        </div>
+      )}
+
+      {error && (
+        <div className="p-4 bg-red-950/20 border border-red-900/40 rounded-xl flex items-center gap-3 text-xs text-red-200 animate-in shake duration-200">
+          <AlertCircle size={16} className="text-red-400 shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <form
+        onSubmit={handleFormSubmit}
+        className="space-y-6 bg-zinc-950/40 backdrop-blur-md border border-zinc-800/80 p-6 sm:p-8 rounded-3xl shadow-xl"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
+              Book Title *
             </label>
-            <input 
-              type="file" 
-              name="bookPdf" 
-              accept=".pdf"
-              required
-              className="w-full text-sm text-zinc-400 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-zinc-800 file:text-zinc-200 hover:file:bg-zinc-700 cursor-pointer"
-            />
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-fuchsia-400 transition-colors duration-200">
+                <Type size={16} />
+              </div>
+              <input
+                type="text"
+                name="title"
+                required
+                placeholder=""
+                className="w-full pl-11 pr-4 py-3 bg-zinc-950/60 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-fuchsia-500/60 focus:bg-zinc-950 focus:ring-4 focus:ring-fuchsia-500/5 transition-all duration-200"
+              />
+            </div>
           </div>
 
+          <div className="space-y-2">
+            <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
+              Author Name *
+            </label>
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-zinc-500 group-focus-within:text-fuchsia-400 transition-colors duration-200">
+                <User size={16} />
+              </div>
+              <input
+                type="text"
+                name="author"
+                required
+                placeholder=""
+                className="w-full pl-11 pr-4 py-3 bg-zinc-950/60 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-fuchsia-500/60 focus:bg-zinc-950 focus:ring-4 focus:ring-fuchsia-500/5 transition-all duration-200"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
+            Synopsis / Description
+          </label>
+          <textarea
+            name="description"
+            rows={3}
+            placeholder=""
+            className="w-full px-4 py-3 bg-zinc-950/60 border border-zinc-800 rounded-xl text-sm text-zinc-100 placeholder-zinc-600 outline-none focus:border-fuchsia-500/60 focus:bg-zinc-950 focus:ring-4 focus:ring-fuchsia-500/5 transition-all duration-200 resize-none leading-relaxed"
+          />
+        </div>
+
+        <div className="h-px bg-zinc-900 my-2" />
+
+        <div className="space-y-2">
+          <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
+            Select Book PDF Asset *
+          </label>
+          <div className="relative group flex items-center justify-center w-full">
+            <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-zinc-800 border-dashed rounded-xl cursor-pointer bg-zinc-950/30 hover:bg-zinc-950/60 hover:border-fuchsia-500/40 transition-all duration-200">
+              <div className="flex flex-col items-center justify-center text-center px-4">
+                <FileText
+                  size={20}
+                  className="text-zinc-500 group-hover:text-fuchsia-400 mb-1.5 transition-colors"
+                />
+                <span className="text-xs text-zinc-400 font-medium block">
+                  Click to add a book <span className=" text-red-200">(Max size: 10MB)</span>
+                </span>
+              </div>
+              <input
+                type="file"
+                name="bookPdf"
+                accept=".pdf"
+                required
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  const nameDisplay =
+                    e.target.parentElement?.querySelector("span");
+
+                  if (!file) return;
+
+                  const MAX_FILE_SIZE = 10 * 1024 * 1024;
+                  if (file.size > MAX_FILE_SIZE) {
+                    setError(
+                      `File is too large! Max allowed size is 10MB. Selected file is ${(file.size / (1024 * 1024)).toFixed(2)}MB.`,
+                    );
+                    e.target.value = ""; 
+                    if (nameDisplay)
+                      nameDisplay.textContent = "Click to add a book ";
+                    return;
+                  }
+
+                  setError(null);
+                  if (nameDisplay) {
+                    nameDisplay.textContent = `Attached: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)}MB)`;
+                  }
+                }}
+              />
+            </label>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end pt-2">
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-800 text-white font-medium rounded-md transition duration-200"
+            className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-500 hover:to-violet-500 text-white font-semibold text-sm rounded-xl transition-all duration-200 shadow-lg shadow-fuchsia-500/10 active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {loading ? "Uploading to Cloudinary..." : "Upload File"}
+            {loading ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Uploading...
+              </>
+            ) : (
+              <>
+                <FileUp size={16} />
+                Upload Book
+              </>
+            )}
           </button>
-        </form>
-
-        {/* Success Feedback Display Area */}
-        {uploadedUrl && (
-          <div className="mt-6 p-4 bg-emerald-950/50 border border-emerald-800 rounded-lg text-sm">
-            <p className="text-emerald-400 font-medium mb-2">✓ Upload successful!</p>
-            {/* <p className="text-xs text-zinc-400 break-all mb-3">{uploadedUrl}</p>
-            <a 
-              href={uploadedUrl} 
-              target="_blank" 
-              rel="noreferrer"
-              className="inline-block text-xs text-blue-400 underline hover:text-blue-300"
-            >
-              Test Live URL In New Tab →
-            </a> */}
-            <button onClick={()=> router.push("/demp")} >View</button>
-          </div>
-        )}
-
-        {/* Error Feedback Display Area */}
-        {error && (
-          <div className="mt-6 p-4 bg-red-950/50 border border-red-900 rounded-lg text-sm text-red-400">
-            <p className="font-medium">Upload Failed</p>
-            <p className="text-xs mt-1 text-zinc-300">{error}</p>
-          </div>
-        )}
-      </div>
+        </div>
+      </form>
     </div>
   );
-
-
 }
