@@ -15,6 +15,10 @@ const BookSchema = new Schema({
         type: String,
 
     },
+    thumbnail: {
+        type: String,
+
+    },
     pdfUrl: {
         type: String,
         required: true,

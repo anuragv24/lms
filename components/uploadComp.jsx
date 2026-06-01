@@ -3,7 +3,7 @@
 import { uploadBookAction } from "@/actions/uploadAction";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { PlusCircle, FileText, User, Type, FileUp, Loader2, CheckCircle2, AlertCircle,} from "lucide-react";
+import { PlusCircle, FileText, User, Type, FileUp, Loader2, CheckCircle2, AlertCircle, Image } from "lucide-react";
 
 export default function UploadComp() {
   const [loading, setLoadin] = useState(false);
@@ -122,7 +122,8 @@ export default function UploadComp() {
 
         <div className="h-px bg-zinc-900 my-2" />
 
-        <div className="space-y-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="space-y-2">
           <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
             Select Book PDF Asset *
           </label>
@@ -169,6 +170,38 @@ export default function UploadComp() {
               />
             </label>
           </div>
+        </div>
+
+        <div className="space-y-2">
+    <label className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block pl-1">
+      Cover Image
+    </label>
+    <div className="relative group flex items-center justify-center w-full">
+      <label className="flex flex-col items-center justify-center w-full h-28 border-2 border-zinc-800 border-dashed rounded-xl cursor-pointer bg-zinc-950/30 hover:bg-zinc-950/60 hover:border-violet-500/40 transition-all duration-200">
+        <div className="flex flex-col items-center justify-center text-center px-4">
+          <Image 
+            size={20}
+            className="text-zinc-500 group-hover:text-fuchsia-400 mb-1.5 transition-colors"
+          />
+      
+          <span className="text-xs text-zinc-400 font-medium block">Click to attach cover</span>
+        </div>
+        <input 
+          type="file" 
+          name="thumbnail" 
+          accept="image/*" 
+          className="hidden" 
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            const nameDisplay = e.target.parentElement?.querySelector('span:last-child');
+            if(file && nameDisplay) {
+              nameDisplay.textContent = `Attached Image: ${file.name}`;
+            }
+          }}
+        />
+      </label>
+    </div>
+  </div>
         </div>
 
         <div className="flex items-center justify-end pt-2">

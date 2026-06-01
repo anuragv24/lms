@@ -23,6 +23,7 @@ export async function uploadBookAction(formData){
         const author = formData.get("author");
         const description = formData.get("description") || "";
         const file = formData.get("bookPdf");
+        const thumbnail = formData.get("thumbnail") || "";
 
         if (!title || !author) {
             return { success: false, message: "Title and Author inputs are required fields." };
@@ -63,12 +64,36 @@ export async function uploadBookAction(formData){
             };
         }
 
+        let thumbnailUrl = null;
+        if(thumbnail && thumbnail.size > 0){
+            const imgArrayBuffer = await thumbnail.arrayBuffer();
+            const imgBuffer = Buffer.from(imgArrayBuffer);
+
+            const thumbnailUploadResult = await new Promise((resolve, reject) => {
+                cloudinary.uploader.upload_stream(
+                    {
+                        resource_type: "image",
+                        folder:"book_covers",
+                    }, (error, result) => {
+                        if(error) reject(error);
+                        else resolve(result);
+                    }
+                ).end(imgBuffer)
+            })
+
+            if(thumbnailUploadResult && thumbnailUploadResult.secure_url){
+                thumbnailUrl = thumbnailUploadResult.secure_url;
+            }
+        }
+
+
         await connectDB();
         const newBook = await Book.create({
             title: title.trim(),
             author: author.trim(),
             description: description?.trim() || "", 
             pdfUrl: uploadResult.secure_url,
+            thumbnail: thumbnailUrl
         });
 
         revalidatePath("/books");
